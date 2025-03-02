@@ -11,7 +11,7 @@ namespace Crazy_Musicians.Controllers
     {
         private static List<Musicians> _musicians = new List<Musicians>()
         {
-            new Musicians{Id=1, Name="Ahmet Çalgı", Job="Ünlü Çalgı Çalar", FunFeature="Her zaman yanlış nota çalar ama çok eğlenceli"},
+            new Musicians{Id=1, Name=" Ahmet Çalgı", Job="Ünlü Çalgı Çalar", FunFeature="Her zaman yanlış nota çalar ama çok eğlenceli"},
             new Musicians{Id=2, Name="Zeynep Melodi", Job="Popüler Melodi Yazarı",FunFeature="Şarkıları yanlış anlaşılır ama çok popüler"},
             new Musicians{Id=3, Name="Cemil Akor", Job="Çılgın Akorist",FunFeature="Akorları sık değiştirir, ama şaşırtıcı derecede yetenekli"},
             new Musicians{Id=4, Name="Fatma Nota", Job="Sürpriz Nota Üreticisi",FunFeature="Nota üretirken sürekli sürprizler hazırlar"},
@@ -35,7 +35,7 @@ namespace Crazy_Musicians.Controllers
             var musician = _musicians.FirstOrDefault(x=>x.Id==id);
             if(musician == null)
             {
-                return NotFound($"Müzisyen Id {id} bulunamadı.");
+                return NotFound($"Musician Id {id} not found.");
             }
             return Ok(musician);
         }
@@ -46,7 +46,7 @@ namespace Crazy_Musicians.Controllers
             var musicianPerson = _musicians.Where(x => x.Name.Equals(musicianName, StringComparison.OrdinalIgnoreCase)).ToList();
             if(!musicianPerson.Any())
             {
-                return NotFound($"{musicianName} için isim bulunamadı.");
+                return NotFound($"{musicianName} no name found for.");
             }
             return Ok(musicianPerson);
         }
@@ -64,7 +64,7 @@ namespace Crazy_Musicians.Controllers
             var musicianPerson = _musicians.FirstOrDefault(x=>x.Id==id);
             if(musicianPerson == null)
             {
-                return NotFound($"Müzisyen Id {id} bulunamadı.");
+                return NotFound($"Musician Id {id} not found.");
             }
             musicianPerson.Name = newMusicianName;
             return Ok(); //Güncellenmiş müzisyeni döndürür.
@@ -75,7 +75,7 @@ namespace Crazy_Musicians.Controllers
             var musicianRemove = _musicians.FirstOrDefault(x=>x.Id == id);
             if(musicianRemove == null)
             {
-                return NotFound($"Belirtilen Id {id} bulunamadı.");
+                return NotFound($"specified Id {id} not found.");
             }
             _musicians.Remove(musicianRemove);
             return Ok();
@@ -87,7 +87,7 @@ namespace Crazy_Musicians.Controllers
             var musicianRemove = _musicians.FirstOrDefault(x=>x.Name.Equals(musicianName,StringComparison.OrdinalIgnoreCase));
             if (musicianRemove == null)
             {
-                return NotFound($"Belirtilen isim {musicianName} bulunamadı.");
+                return NotFound($"Specified name {musicianName} not found.");
             }
             _musicians.Remove(musicianRemove);
             return NoContent();
@@ -99,11 +99,22 @@ namespace Crazy_Musicians.Controllers
             var musician = _musicians.FirstOrDefault(x => x.Id == id);
             if (musician == null)
             {
-                return NotFound($"Müzisyen Id {id} bulunamadı.");
+                return NotFound($"Musician Id {id} not found.");
             }
             musician.FunFeature= newFunFeature;
             
             return Ok();
+        }
+        [HttpGet("search")]
+        public ActionResult<List<Musicians>> Search([FromQuery] string name)
+        {
+            if (string.IsNullOrWhiteSpace(name)) return BadRequest("Name parameter is required!");
+
+            var musicians = _musicians.Where(x => x.Name.Contains(name, StringComparison.OrdinalIgnoreCase)).ToList();
+
+            if (musicians.Count == 0) return NotFound($"Musician with the name {name} could not be found!");
+
+            return Ok(musicians);
         }
 
     }
